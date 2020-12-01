@@ -1,3 +1,4 @@
+import logo from '../../assets/logo.png';
 <template>
   <div>
     <!-- 面包屑区域 -->
@@ -36,7 +37,7 @@
               <el-button type="primary" icon="el-icon-edit" size='mini' @click='showEditDialog(scope.row.id)'></el-button>
               <el-button type="danger" icon="el-icon-delete" size='mini' @click=removeUser(scope.row.id)></el-button>
               <el-tooltip class="item" effect="dark" content="分配权限" placement="top" :enterable='false'>
-                <el-button type="warn" icon="el-icon-setting" size='mini'></el-button>
+                <el-button type="warning" icon="el-icon-setting" size='mini' @click='showSetRightDialog(scope.row)'></el-button>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -87,6 +88,23 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 分配角色权限 -->
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="30%">
+      <div>
+        <p>当前角色: {{userInfo.username}}</p>
+        <p>角色权限: {{userInfo.role_name}}</p>
+        <p>
+          <el-select v-model=" selectedID" placeholder="请选择">
+            <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id">
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRightDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRightDialogVisible = false">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -160,7 +178,11 @@ export default {
         mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' },
         { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+      setRightDialogVisible: false,
+      userInfo: {},
+      roleList: [],
+      selectedID: ''
     }
   },
   methods: {
@@ -242,6 +264,18 @@ export default {
       }
       this.$message.success('删除用户成功')
       this.getUserList()
+    },
+    async showSetRightDialog (userInfo) {
+      this.userInfo = userInfo
+      //console.log(userInfo)
+      const { data: res } = await this.$http.get('roles')
+      this.roleList = res.data
+      // console.log(this.roleList);
+      if (!this.selectedID) return this.$message.error('请选择角色')
+      const { data: ress } = await this.$http.put(`users/${this.userInfo.id}/role`, {
+        rid: this.selectedID
+      })
+      this.setRightDialogVisible = true
     }
   },
   created () {

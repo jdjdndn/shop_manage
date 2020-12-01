@@ -15,7 +15,9 @@ axios.interceptors.request.use(config => {
   return config
 })
 Vue.prototype.$http = axios
+import ZkTable from 'vue-table-with-tree-grid'
 
+Vue.component('tree-table', ZkTable)
 new Vue({
   router,
   render: h => h(App)
