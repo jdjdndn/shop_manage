@@ -17,6 +17,17 @@ axios.interceptors.request.use(config => {
 Vue.prototype.$http = axios
 import ZkTable from 'vue-table-with-tree-grid'
 
+Vue.filter('dateFormat', (date) => {
+  const dt = new Date(date)
+  const y = dt.getFullYear()
+  const m = (dt.getMonth() + 1).toString().padStart(2,'0')
+  const d = (dt.getDate()).toString().padStart(2,'0')
+  const h = (dt.getHours()).toString().padStart(2,'0')
+  const mm = (dt.getMinutes()).toString().padStart(2,'0')
+  const s = (dt.getSeconds()).toString().padStart(2, '0')
+  return `${y}-${m}-${d} ${h}:${mm}:${s}`
+})
+
 Vue.component('tree-table', ZkTable)
 new Vue({
   router,

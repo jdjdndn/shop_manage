@@ -91,11 +91,11 @@ import logo from '../../assets/logo.png';
       </span>
     </el-dialog>
     <!-- 分配角色权限 -->
-    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="30%">
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="30%" @close='resetDialog'>
       <div>
         <p>当前角色: {{userInfo.username}}</p>
         <p>角色权限: {{userInfo.role_name}}</p>
-        <p>
+        <p>选取角色:
           <el-select v-model=" selectedID" placeholder="请选择">
             <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id">
             </el-option>
@@ -104,7 +104,7 @@ import logo from '../../assets/logo.png';
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="setRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="setRightDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="editUserRole">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -271,11 +271,22 @@ export default {
       const { data: res } = await this.$http.get('roles')
       this.roleList = res.data
       // console.log(this.roleList);
-      if (!this.selectedID) return this.$message.error('请选择角色')
-      const { data: ress } = await this.$http.put(`users/${this.userInfo.id}/role`, {
-        rid: this.selectedID
-      })
       this.setRightDialogVisible = true
+    },
+    async editUserRole () {
+      if (!this.selectedID) return this.$message.error('请选择角色')
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, {
+        params: {
+          rid: this.selectedID
+        }
+      })
+      if (res.meta.status !== 200) return this.$message.error('分配用户角色失败')
+      this.getUserList()
+      this.setRightDialogVisible = false
+    },
+    resetDialog () {
+      this.selectedID = ''
+      // this.roleList = {}
     }
   },
   created () {
